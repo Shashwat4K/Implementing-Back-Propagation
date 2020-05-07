@@ -1,0 +1,3 @@
+EOPCHS = 100
+
+N_LAYERS = 10
