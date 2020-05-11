@@ -69,7 +69,6 @@ class Layer(object):
     def get_neuron_count(self):
         return len(self.neurons)
 
-
 class Network(object):
     
     def __init__(self):
@@ -110,7 +109,6 @@ class Network(object):
     # Use tqdm here!!! NOT IN FORWARD OR BACKWARD PASS!!!
     def train_network(self):
         pass
-
 
 if __name__ == '__main__':
     print("Welcome to BackProp simulation")
