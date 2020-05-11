@@ -1,6 +1,7 @@
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 from network_config import *
 from activation_functions import *
 
@@ -78,6 +79,7 @@ class Network(object):
 
     def forward_pass(self, input_vector):
 
+        print("Forward pass: input='{}'".format(input_vector))
         # Input vector should be of same length as the number of neurons in input layer.
         assert len(input_vector)==self.layers[0].get_neuron_count()
 
@@ -102,6 +104,11 @@ class Network(object):
         pass 
 
     def calculate_error(self):
+        pass
+
+    # Train the network using back propagation algorithm
+    # Use tqdm here!!! NOT IN FORWARD OR BACKWARD PASS!!!
+    def train_network(self):
         pass
 
 
