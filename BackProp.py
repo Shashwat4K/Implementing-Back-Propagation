@@ -65,7 +65,7 @@ class Layer(object):
         return np.array([i.get_activation() for i in self.neurons])
         # returns Array of activations. shape = (n,)
 
-    def get_neuron_number(self):
+    def get_neuron_count(self):
         return len(self.neurons)
 
 
@@ -79,14 +79,14 @@ class Network(object):
     def forward_pass(self, input_vector):
 
         # Input vector should be of same length as the number of neurons in input layer.
-        assert len(input_vector)==self.layers[0].get_neuron_number()
+        assert len(input_vector)==self.layers[0].get_neuron_count()
 
         # For every layer after input layer,
         previous_layer_input = input_vector
         for layer in self.layers[1:]:
             temp = []
             # Calculate the weighted sum for every neuron
-            for n in np.arange(layer.get_neuron_number()):
+            for n in np.arange(layer.get_neuron_count()):
                 # Calculate weighted sum (dot product) + add bias 
                 weighted_sum = np.dot(previous_layer_input, layer.get_weights_for_neuron(n)) # + "add bias term here"
                 # pass the weighted sum to the activation function
