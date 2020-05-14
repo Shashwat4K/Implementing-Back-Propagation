@@ -1,0 +1,33 @@
+{
+    "network_name": "network_1",
+    "n_layers": 3,
+    "layers": [{
+            "layer_ID": "input_0",
+            "layer_number": 0,
+            "neuron_count": 10,
+            "activation_type": null,
+            "layer_type": "i"
+        },
+        {
+            "layer_ID": "hidden_0",
+            "layer_number": 1,
+            "neuron_count": 20,
+            "activation_type": "sigmoid",
+            "layer_type": "h"
+        },
+        {
+            "layer_ID": "hidden_1",
+            "layer_number": 2,
+            "neuron_count": 10,
+            "activation_type": "sigmoid",
+            "layer_type": "h"
+        },
+        {
+            "layer_ID": "output_0",
+            "layer_number": 3,
+            "neuron_count": 10,
+            "activation_type": "sigmoid",
+            "layer_type": "o"
+        }
+    ]
+}

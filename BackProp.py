@@ -1,9 +1,10 @@
+import os
+import json
 import numpy as np 
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from network_config import *
-from activation_functions import *
+from activation_functions import sigmoid
 
 class Neuron(object):
     '''
@@ -14,10 +15,16 @@ class Neuron(object):
     def __init__(self, links, is_input=False, activation_type='sigmoid'):
         self.activation = 0.0
         self.is_input = is_input
+        self.error_term = 0.0 # Delta for each neuron
+        self.links = "" # weights connecting 'this' neuron from all previous neurons, Empty for input neurons
         if is_input == False:
             self.links = links    
         if activation_type == 'sigmoid':
             self.activation_fn = sigmoid
+
+    def __str__(self):
+        output_str = "Activation value: {},\nError term: {}\nLinks: {}".format(self.activation, self.error_term, self.links)
+        return output_str
 
     def get_activation(self):
         return self.activation
@@ -26,27 +33,49 @@ class Neuron(object):
         sum_value = np.dot(prev_inputs, self.links)
         activation_val = self.activation_fn(sum_value)
         self.activation = activation_val
+    '''
+    params:
+        neuron_type: 'h', 'i', or 'o' suggests the type of neuron - hidden, input or output respectively.
+        target_output: used only when neuron type is 'o', the target value at the particular output neuron
+        weight_vec: Used to calculate error in hidden neuron. Vector of weights from 'this' neuron to all next layer neurons. 
+        error_vec: Used to calculate error in hidden neuron. Vector of error terms of all next layer neurons
+    '''
+    def calculate_error_term(self, neuron_type, target_output, weight_vec, error_vec):
+        if neuron_type == 'o':
+            if target_output == None:
+                raise 'Provide target output value to get error at output neuron!'
+            else:
+                self.error_term = self.activation * (1 - self.activation) * (target_output - self.activation)
+        else:
+            temp_sum = np.dot(weight_vec, error_vec)
+            self.error_term = self.activation * (1 - self.activation) * temp_sum 
+
+    def get_error_term(self):
+        return self.error_term
 
 class Layer(object):
 
-    def __init__(self, num_units, layer_ID, layer_type, prev_layer_neurons):
-        self.num_units = num_units 
-        self.layer_type = layer_type
+    def __init__(self, layer_properties, prev_layer_neurons):
+        self.num_units = layer_properties['neuron_count'] 
+        self.layer_type = layer_properties['layer_type']
+        self.layer_ID = layer_properties['layer_ID']
+        self.activation_type = layer_properties['activation_type']
+        self.layer_number = layer_properties['layer_number']
         self.prev_layer_neurons = prev_layer_neurons
-        self.layer_ID = layer_ID
+        
 
         # Initialize Neurons in the layer and, 
         # Initialize the weight matrix with random weights
         # The weight matrix is weights between 'this' and previous layer
          
         # For hidden and output layers
-        if layer_type == 'h' or layer_type == 'o': 
-            self.weight_matrix = np.random.uniform(low=-0.5, high=0.5, size=(prev_layer_neurons, num_units))
-            self.neurons = [Neuron(self.weight_matrix[i]) for i in range(num_units)]
+        if self.layer_type == 'h' or self.layer_type == 'o': 
+            self.weight_matrix = np.random.uniform(low=-0.5, high=0.5, size=(self.num_units, prev_layer_neurons))
+            self.neurons = [Neuron(self.weight_matrix[i]) for i in range(self.num_units)]
         # For input layer
-        elif layer_type == 'i':
+        elif self.layer_type == 'i':
             self.weight_matrix = None 
-            self.neurons = [Neuron(None, is_input=True) for i in range(num_units)]
+            self.neurons = [Neuron(None, is_input=True) for i in range(self.num_units)]
 
     def get_weights(self):
         return self.weight_matrix
@@ -69,12 +98,43 @@ class Layer(object):
     def get_neuron_count(self):
         return len(self.neurons)
 
+    def print_layer_properties(self):
+        print('**************')
+        print('Layer Number: {}\nLayer ID: {}\nLayer Type: {}\nNeuron count: {}\nActivation type: {}'.format(
+            self.layer_number,
+            self.layer_ID,
+            self.layer_type,
+            self.num_units,
+            self.activation_type
+        )) 
+        print('**************')
+
+    def print_layer_neurons(self):
+        for i in range(self.num_units):
+            print('{})'.format(i+1))
+            print(self.neurons[i])
+            print('****************')  
+
 class Network(object):
     
-    def __init__(self):
+    def __init__(self, network_file_path):
         # Get network settings, from network config file
+        with open(network_file_path, "r") as net:
+            self.network_properties = json.load(net)
         self.layers = [] # Array of layers
-        pass
+        prev_layer_units = None
+        for i in range(self.network_properties['n_layers']+1):
+            current_layer = self.network_properties['layers'][i]
+            self.layers.append(Layer(current_layer, prev_layer_units))
+            prev_layer_units = current_layer['neuron_count']
+
+        self.print_layers()
+        
+    def print_layers(self):
+        print('printing all the layers:')
+        for i in range(self.network_properties['n_layers']+1):
+            self.layers[i].print_layer_properties()
+            print('#################')
 
     def forward_pass(self, input_vector):
 
@@ -114,6 +174,9 @@ if __name__ == '__main__':
     print("Welcome to BackProp simulation")
     print("The network will be loaded from a JSON file, which you can provide")
     print("Some sample testing JSON files are given, refer those to make your own custom network")
+
+    CWD = os.getcwd()
+    network = Network(os.path.join(CWD, 'Network_structures', 'network_1.json'))
 
 
 
