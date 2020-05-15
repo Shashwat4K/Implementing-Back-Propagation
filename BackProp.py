@@ -87,16 +87,30 @@ class Layer(object):
         # return weight vector for neuron at index 'index'
         return self.weight_matrix[index]
 
-    def update_weights(self):
-        # Call this function only in backward pass.
-        pass 
-
     def get_neuron_activations(self):
         return np.array([i.get_activation() for i in self.neurons])
         # returns Array of activations. shape = (n,)
 
     def get_neuron_count(self):
         return len(self.neurons)
+
+    def get_weight_and_error_vector_for_error_term_calculation(self, layer_type):
+        pass
+
+    def calculate_delta_values(self, target_output_vector):
+        # Calculate error term values for every neuron in this layer
+        # To do that, we need weight_vec and error_vec (error_vec == None if layer is output layer)
+        # TODO: Improvements HERE!!!!
+        for i in range(len(target_output_vector)):
+            weight_vec, error_vec = self.get_weight_and_error_vector_for_error_term_calculation(self.layer_type)
+
+            self.neurons[i].calculate_error_term(self.layer_type, target_output_vector[i], weight_vec, error_vec)
+            
+
+    def update_weight_matrix(self):
+        # Call this function only in backward pass.
+        pass 
+
 
     def print_layer_properties(self):
         print('**************')
@@ -159,8 +173,12 @@ class Network(object):
             previous_layer_input = np.array(temp) 
             temp.clear() 
 
-    def backward_pass(self):
-        pass 
+    def backward_pass(self, target_output_vector):
+        # Calculate error term value for each neuron in the network, starting from the output layer all the way to input layer
+        for layer in self.layers[::-1]:
+            if layer.layer_type != 'i': 
+                layer.calculate_delta_values(target_output_vector)
+                layer.update_weight_matrix()
 
     def calculate_error(self):
         pass
