@@ -170,6 +170,7 @@ class Network(object):
     def train_network(self):
         pass
 
+'''
 if __name__ == '__main__':
     print("Welcome to BackProp simulation")
     print("The network will be loaded from a JSON file, which you can provide")
@@ -177,7 +178,4 @@ if __name__ == '__main__':
 
     CWD = os.getcwd()
     network = Network(os.path.join(CWD, 'Network_structures', 'network_1.json'))
-
-
-
-
+'''
