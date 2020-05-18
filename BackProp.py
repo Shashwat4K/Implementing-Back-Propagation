@@ -12,46 +12,36 @@ class Neuron(object):
             is_input: (boolean) tells whether 'this' neuron is an input neuron or not. 
             activation_type: Type of activation function
     '''
-    def __init__(self, links, is_input=False, activation_type='sigmoid'):
+    def __init__(self, is_input=False, activation_type='sigmoid'):
         self.activation = 0.0
         self.is_input = is_input
         self.error_term = 0.0 # Delta for each neuron
-        self.links = "" # weights connecting 'this' neuron from all previous neurons, Empty for input neurons
-        if is_input == False:
-            self.links = links    
+        # self.links = "" # weights connecting 'this' neuron from all previous neurons, Empty for input neurons
+        # if is_input == False:
+        #     self.links = links    
         if activation_type == 'sigmoid':
             self.activation_fn = sigmoid
 
     def __str__(self):
-        output_str = "Activation value: {},\nError term: {}\nLinks: {}".format(self.activation, self.error_term, self.links)
+        output_str = "Activation value: {},\nError term: {}".format(self.activation, self.error_term)
         return output_str
 
     def get_activation(self):
         return self.activation
 
-    def activate_neuron(self, prev_inputs):
-        sum_value = np.dot(prev_inputs, self.links)
-        activation_val = self.activation_fn(sum_value)
-        self.activation = activation_val
-    '''
-    params:
-        neuron_type: 'h', 'i', or 'o' suggests the type of neuron - hidden, input or output respectively.
-        target_output: used only when neuron type is 'o', the target value at the particular output neuron
-        weight_vec: Used to calculate error in hidden neuron. Vector of weights from 'this' neuron to all next layer neurons. 
-        error_vec: Used to calculate error in hidden neuron. Vector of error terms of all next layer neurons
-    '''
-    def calculate_error_term(self, neuron_type, target_output, weight_vec, error_vec):
-        if neuron_type == 'o':
-            if target_output == None:
-                raise 'Provide target output value to get error at output neuron!'
-            else:
-                self.error_term = self.activation * (1 - self.activation) * (target_output - self.activation)
-        else:
-            temp_sum = np.dot(weight_vec, error_vec)
-            self.error_term = self.activation * (1 - self.activation) * temp_sum 
+    def set_error_term(self, value):
+        self.error_term = value
 
     def get_error_term(self):
-        return self.error_term
+        return self.error_term    
+
+    # prev_inputs: 'x', weights: 'w'. Take dot product of these two.
+    def activate_neuron(self, prev_inputs, weights):
+        # sum_value = np.dot(prev_inputs, self.links)
+        sum_value = np.dot(prev_inputs, weights)
+        activation_val = self.activation_fn(sum_value)
+        self.activation = activation_val
+    
 
 class Layer(object):
 
@@ -71,11 +61,11 @@ class Layer(object):
         # For hidden and output layers
         if self.layer_type == 'h' or self.layer_type == 'o': 
             self.weight_matrix = np.random.uniform(low=-0.5, high=0.5, size=(self.num_units, prev_layer_neurons))
-            self.neurons = [Neuron(self.weight_matrix[i]) for i in range(self.num_units)]
+            self.neurons = [Neuron() for i in range(self.num_units)]
         # For input layer
         elif self.layer_type == 'i':
             self.weight_matrix = None 
-            self.neurons = [Neuron(None, is_input=True) for i in range(self.num_units)]
+            self.neurons = [Neuron(is_input=True, activation_type='sigmoid') for i in range(self.num_units)]
 
     def get_weights(self):
         return self.weight_matrix
@@ -83,29 +73,37 @@ class Layer(object):
     def get_layer_ID(self):
         return self.layer_ID
 
+    def get_layer_type(self):
+        return self.layer_type    
+
     def get_weights_for_neuron(self, index):
         # return weight vector for neuron at index 'index'
         return self.weight_matrix[index]
 
     def get_neuron_activations(self):
-        return np.array([i.get_activation() for i in self.neurons])
+        return np.array([n.get_activation() for n in self.neurons])
         # returns Array of activations. shape = (n,)
 
     def get_neuron_count(self):
         return len(self.neurons)
 
-    def get_weight_and_error_vector_for_error_term_calculation(self, layer_type):
-        pass
+    def get_neuron_error_terms(self):
+        return np.array([n.get_error_term() for n in self.neurons])
 
-    def calculate_delta_values(self, target_output_vector):
-        # Calculate error term values for every neuron in this layer
-        # To do that, we need weight_vec and error_vec (error_vec == None if layer is output layer)
-        # TODO: Improvements HERE!!!!
-        for i in range(len(target_output_vector)):
-            weight_vec, error_vec = self.get_weight_and_error_vector_for_error_term_calculation(self.layer_type)
-
-            self.neurons[i].calculate_error_term(self.layer_type, target_output_vector[i], weight_vec, error_vec)
-            
+    def calculate_error_terms(self, is_output, resource):
+        if is_output == True:
+            # 'resource' is target output vector
+            for n in range(len(self.neurons)):
+                # delta = o * (1 - o) * (t - o)
+                error_value = self.neurons[n].get_activation() * (1 - self.neurons[n].get_activation()) * (resource[n] - self.neurons[n].get_activation())
+                self.neurons[n].set_error_term(error_value)
+        else:
+            # 'resource' is now weight matrix!
+            (weight_matrix, error_vector) = resource
+            for n in range(len(self.neurons)):
+                temp_sum = np.dot(weight_matrix.T[n], error_vector)
+                error_value = self.neurons[n].get_activation() * (1 - self.neurons[n].get_activation()) * temp_sum 
+                self.neurons[n].set_error_term(error_value)
 
     def update_weight_matrix(self):
         # Call this function only in backward pass.
@@ -162,10 +160,8 @@ class Network(object):
             temp = []
             # Calculate the weighted sum for every neuron
             for n in np.arange(layer.get_neuron_count()):
-                # Calculate weighted sum (dot product) + add bias 
-                weighted_sum = np.dot(previous_layer_input, layer.get_weights_for_neuron(n)) # + "add bias term here"
-                # pass the weighted sum to the activation function
-                layer.neurons[n].activate_neuron(weighted_sum)
+                # pass the required vectors (x, w) to the activate_neuron() method
+                layer.neurons[n].activate_neuron(previous_layer_input, layer.get_weights_for_neuron(n))
                 # accumulate the current activation values
                 temp.append(layer.neurons[n].get_activation())
 
@@ -174,19 +170,40 @@ class Network(object):
             temp.clear() 
 
     def backward_pass(self, target_output_vector):
-        # Calculate error term value for each neuron in the network, starting from the output layer all the way to input layer
-        for layer in self.layers[::-1]:
-            if layer.layer_type != 'i': 
-                layer.calculate_delta_values(target_output_vector)
-                layer.update_weight_matrix()
+        # l1 = self.layers[-1::-1]
+        # l2 = self.layers[-2::-1]
+        # l2.append(None)
+        error_vector = None
+        weight_matrix = None
+        # Calculate Error terms for all layers (end to start):
+        for current_layer in self.layers[::-1]:
+            if current_layer.get_layer_type() == 'o':
+                current_layer.calculate_error_terms(True, target_output_vector)
+            elif current_layer.get_layer_type() == 'h':
+                current_layer.calculate_error_terms(False, (weight_matrix, error_vector))
+            else: 
+                # If current layer is 'input layer' then stop processing
+                break     
+            error_vector = current_layer.get_neuron_error_terms()  
+            weight_matrix = current_layer.get_weights()      
+        
+        # Update every weight now:
+        previous_layer_neuron_activations = None
+        for layer in self.layers:
+            if layer.get_layer_type() != 'i':
+                layer.update_weights(previous_layer_neuron_activations, layer.get_error_terms())
+            previous_layer_neuron_activations = layer.get_neuron_activations()    
 
     def calculate_error(self):
         pass
 
     # Train the network using back propagation algorithm
     # Use tqdm here!!! NOT IN FORWARD OR BACKWARD PASS!!!
-    def train_network(self):
-        pass
+    def train_network(self, training_data):
+        X_train, y_train = training_data
+        for i in tqdm(range(len(training_data))):
+            self.forward_pass(X_train[i])
+            self.backward_pass(y_train[i])
 
 '''
 if __name__ == '__main__':
