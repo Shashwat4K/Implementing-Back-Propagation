@@ -1,6 +1,6 @@
 {
     "network_name": "network_1",
-    "dataset_path": "./Input/data1.csv",
+    "dataset_path": "./Input/data2.csv",
     "n_layers": 3,
     "learning_rate": 0.01,
     "epochs": 10,

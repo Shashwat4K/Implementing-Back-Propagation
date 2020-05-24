@@ -240,5 +240,5 @@ class NeuralNetwork(object):
             print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))
             self.forward_pass(X_train[i])
             self.backward_pass(y_train[i])
-            print("iteration completed. Result:")
-            self.print_layers()
+            # print("iteration completed. Result:")
+            # self.print_layers()

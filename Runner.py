@@ -3,6 +3,7 @@ import sys
 import numpy as np
 
 from BackProp import NeuralNetwork, Layer, Neuron
+from dataset_creator import dataset_creator
 
 NETWORK_DIRECTORY = os.path.join(os.getcwd(), 'Network_structures')
 
