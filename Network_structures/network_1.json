@@ -1,6 +1,9 @@
 {
     "network_name": "network_1",
+    "dataset_path": "Enter valid path here",
     "n_layers": 3,
+    "learning_rate": 0.01,
+    "epochs": 10,
     "layers": [{
             "layer_ID": "input_0",
             "layer_number": 0,
@@ -25,7 +28,7 @@
         {
             "layer_ID": "output_0",
             "layer_number": 3,
-            "neuron_count": 10,
+            "neuron_count": 2,
             "activation_type": "sigmoid",
             "layer_type": "o"
         }

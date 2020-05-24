@@ -23,7 +23,7 @@ class Neuron(object):
             self.activation_fn = sigmoid
 
     def __str__(self):
-        output_str = "Activation value: {},\nError term: {}".format(self.activation, self.error_term)
+        output_str = "<< Activation value: {}, Error term: {} >>".format(self.activation, self.error_term)
         return output_str
 
     def get_activation(self):
@@ -105,9 +105,15 @@ class Layer(object):
                 error_value = self.neurons[n].get_activation() * (1 - self.neurons[n].get_activation()) * temp_sum 
                 self.neurons[n].set_error_term(error_value)
 
-    def update_weight_matrix(self):
+    # X is previous layer input, DELTA is vector of error terms
+    def update_weights(self, X, DELTA, learning_rate):
         # Call this function only in backward pass.
-        pass 
+        if self.layer_type != 'i':
+            del_W = np.zeros(shape=self.weight_matrix.shape)
+            for i in range(len(X)):
+                for j in range(len(del_W)):
+                    del_W[j,i] = learning_rate * X[i] * DELTA[j]
+            self.weight_matrix = self.weight_matrix + del_W         
 
 
     def print_layer_properties(self):
@@ -139,7 +145,6 @@ class Network(object):
             current_layer = self.network_properties['layers'][i]
             self.layers.append(Layer(current_layer, prev_layer_units))
             prev_layer_units = current_layer['neuron_count']
-
         self.print_layers()
         
     def print_layers(self):
@@ -150,7 +155,7 @@ class Network(object):
 
     def forward_pass(self, input_vector):
 
-        print("Forward pass: input='{}'".format(input_vector))
+        # print("Forward pass: input='{}'".format(input_vector))
         # Input vector should be of same length as the number of neurons in input layer.
         assert len(input_vector)==self.layers[0].get_neuron_count()
 
@@ -191,7 +196,7 @@ class Network(object):
         previous_layer_neuron_activations = None
         for layer in self.layers:
             if layer.get_layer_type() != 'i':
-                layer.update_weights(previous_layer_neuron_activations, layer.get_error_terms())
+                layer.update_weights(previous_layer_neuron_activations, layer.get_neuron_error_terms(), float(self.network_properties['learning_rate']))
             previous_layer_neuron_activations = layer.get_neuron_activations()    
 
     def calculate_error(self):
