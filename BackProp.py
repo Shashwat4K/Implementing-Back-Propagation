@@ -158,8 +158,20 @@ class NeuralNetwork(object):
             current_layer = self.network_properties['layers'][i]
             self.layers.append(Layer(current_layer, prev_layer_units))
             prev_layer_units = current_layer['neuron_count']
+        # Load dataset here.
+        df = pd.read_csv(self.network_properties['dataset_path'])
+        data = np.array(df)
+        data_block = data[:, 1:]
+        trainX = data_block[:, :self.network_properties['input_size']] 
+        trainY = data_block[:, self.network_properties['input_size']:] 
+        size = len(data_block)
+        self.data = (trainX, trainY, size) 
         self.print_layers()
         
+    def print_data(self):
+        print("data: ")
+        print(self.data)
+
     def print_layers(self):
         print('printing all the layers:')
         for i in range(self.network_properties['n_layers']+1):
@@ -221,8 +233,8 @@ class NeuralNetwork(object):
 
     # Train the network using back propagation algorithm
     # Use tqdm here!!! NOT IN FORWARD OR BACKWARD PASS!!!
-    def train_network(self, training_data):
-        X_train, y_train, size = training_data
+    def train_network(self):
+        X_train, y_train, size = self.data
         for i in range(size):
             print('Training example {}'.format(i+1))
             print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))

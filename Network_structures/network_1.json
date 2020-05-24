@@ -1,9 +1,11 @@
 {
     "network_name": "network_1",
-    "dataset_path": "Enter valid path here",
+    "dataset_path": "./Input/data1.csv",
     "n_layers": 3,
     "learning_rate": 0.01,
     "epochs": 10,
+    "input_size": 10,
+    "output_size": 2,
     "layers": [{
             "layer_ID": "input_0",
             "layer_number": 0,
