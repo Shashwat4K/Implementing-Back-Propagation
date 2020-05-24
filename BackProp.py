@@ -38,11 +38,15 @@ class Neuron(object):
     # prev_inputs: 'x', weights: 'w'. Take dot product of these two.
     def activate_neuron(self, prev_inputs, weights):
         # sum_value = np.dot(prev_inputs, self.links)
-        sum_value = np.dot(prev_inputs, weights)
-        activation_val = self.activation_fn(sum_value)
-        self.activation = activation_val
+        if weights is None:
+            # input layer. 'prev_inputs' is now the actual activation value (from the input_vector)
+            self.activation = prev_inputs    
+        else:
+            sum_value = np.dot(prev_inputs, weights)
+            activation_val = self.activation_fn(sum_value)
+            self.activation = activation_val
+            
     
-
 class Layer(object):
 
     def __init__(self, layer_properties, prev_layer_neurons):
@@ -90,6 +94,10 @@ class Layer(object):
     def get_neuron_error_terms(self):
         return np.array([n.get_error_term() for n in self.neurons])
 
+    # This following function 'calculate_error_terms()' works in 2 types:
+    # 1) if 'is_output' == True, That means error term calculation will be according to output layer formula. 'resource' is target_output_vector here
+    # 2) if 'is_output  == False, That means error term calculation is for hidden layer. 'resource' here is tuple of (weights, error_vec) between 'this' layer and 'next' layer.
+    # read the README file for better understanding.
     def calculate_error_terms(self, is_output, resource):
         if is_output == True:
             # 'resource' is target output vector
@@ -128,12 +136,17 @@ class Layer(object):
         print('**************')
 
     def print_layer_neurons(self):
+        print('Layer {}'.format(self.layer_number))
+        temp = []
         for i in range(self.num_units):
-            print('{})'.format(i+1))
-            print(self.neurons[i])
-            print('****************')  
+            temp.append(self.neurons[i].get_activation())
+        print(temp)    
+        print('==============================')
+        #     print('{})'.format(i+1))
+        #     print(self.neurons[i])
+        #     print('****************')  
 
-class Network(object):
+class NeuralNetwork(object):
     
     def __init__(self, network_file_path):
         # Get network settings, from network config file
@@ -150,7 +163,7 @@ class Network(object):
     def print_layers(self):
         print('printing all the layers:')
         for i in range(self.network_properties['n_layers']+1):
-            self.layers[i].print_layer_properties()
+            self.layers[i].print_layer_neurons()
             print('#################')
 
     def forward_pass(self, input_vector):
@@ -161,18 +174,22 @@ class Network(object):
 
         # For every layer after input layer,
         previous_layer_input = input_vector
-        for layer in self.layers[1:]:
-            temp = []
-            # Calculate the weighted sum for every neuron
-            for n in np.arange(layer.get_neuron_count()):
-                # pass the required vectors (x, w) to the activate_neuron() method
-                layer.neurons[n].activate_neuron(previous_layer_input, layer.get_weights_for_neuron(n))
-                # accumulate the current activation values
-                temp.append(layer.neurons[n].get_activation())
+        for layer in self.layers:
+            if layer.get_layer_type() == 'i':
+                for n in np.arange(layer.get_neuron_count()):
+                    layer.neurons[n].activate_neuron(input_vector[n], None)
+            else:        
+                temp = []
+                # Calculate the weighted sum for every neuron
+                for n in np.arange(layer.get_neuron_count()):
+                    # pass the required vectors (x, w) to the activate_neuron() method
+                    layer.neurons[n].activate_neuron(previous_layer_input, layer.get_weights_for_neuron(n))
+                    # accumulate the current activation values
+                    temp.append(layer.neurons[n].get_activation())
 
-            # Update the previous layer input, which will be fed to the next layer
-            previous_layer_input = np.array(temp) 
-            temp.clear() 
+                # Update the previous layer input, which will be fed to the next layer
+                previous_layer_input = np.array(temp) 
+                temp.clear() 
 
     def backward_pass(self, target_output_vector):
         # l1 = self.layers[-1::-1]
@@ -205,17 +222,11 @@ class Network(object):
     # Train the network using back propagation algorithm
     # Use tqdm here!!! NOT IN FORWARD OR BACKWARD PASS!!!
     def train_network(self, training_data):
-        X_train, y_train = training_data
-        for i in tqdm(range(len(training_data))):
+        X_train, y_train, size = training_data
+        for i in range(size):
+            print('Training example {}'.format(i+1))
+            print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))
             self.forward_pass(X_train[i])
             self.backward_pass(y_train[i])
-
-'''
-if __name__ == '__main__':
-    print("Welcome to BackProp simulation")
-    print("The network will be loaded from a JSON file, which you can provide")
-    print("Some sample testing JSON files are given, refer those to make your own custom network")
-
-    CWD = os.getcwd()
-    network = Network(os.path.join(CWD, 'Network_structures', 'network_1.json'))
-'''
+            print("iteration completed. Result:")
+            self.print_layers()
