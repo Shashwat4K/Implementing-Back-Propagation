@@ -36,13 +36,13 @@ class Neuron(object):
         return self.error_term    
 
     # prev_inputs: 'x', weights: 'w'. Take dot product of these two.
-    def activate_neuron(self, prev_inputs, weights):
+    def activate_neuron(self, prev_inputs, weights, bias_value):
         # sum_value = np.dot(prev_inputs, self.links)
         if weights is None:
             # input layer. 'prev_inputs' is now the actual activation value (from the input_vector)
             self.activation = prev_inputs    
         else:
-            sum_value = np.dot(prev_inputs, weights)
+            sum_value = np.dot(prev_inputs, weights) + bias_value
             activation_val = self.activation_fn(sum_value)
             self.activation = activation_val
             
@@ -65,10 +65,12 @@ class Layer(object):
         # For hidden and output layers
         if self.layer_type == 'h' or self.layer_type == 'o': 
             self.weight_matrix = np.random.uniform(low=-0.5, high=0.5, size=(self.num_units, prev_layer_neurons))
+            self.biases = np.random.uniform(low=-0.5, high=0.5, size=(self.num_units,))
             self.neurons = [Neuron() for i in range(self.num_units)]
         # For input layer
         elif self.layer_type == 'i':
             self.weight_matrix = None 
+            self.biases = None
             self.neurons = [Neuron(is_input=True, activation_type='sigmoid') for i in range(self.num_units)]
 
     def get_weights(self):
@@ -83,6 +85,9 @@ class Layer(object):
     def get_weights_for_neuron(self, index):
         # return weight vector for neuron at index 'index'
         return self.weight_matrix[index]
+
+    def get_bias_value(self, index):
+        return self.biases[index]
 
     def get_neuron_activations(self):
         return np.array([n.get_activation() for n in self.neurons])
@@ -121,7 +126,11 @@ class Layer(object):
             for i in range(len(X)):
                 for j in range(len(del_W)):
                     del_W[j,i] = learning_rate * X[i] * DELTA[j]
-            self.weight_matrix = self.weight_matrix + del_W         
+            self.weight_matrix = self.weight_matrix + del_W 
+            '''
+            Eliminate these Python double loops!!
+            
+            '''        
 
 
     def print_layer_properties(self):
@@ -189,13 +198,13 @@ class NeuralNetwork(object):
         for layer in self.layers:
             if layer.get_layer_type() == 'i':
                 for n in np.arange(layer.get_neuron_count()):
-                    layer.neurons[n].activate_neuron(input_vector[n], None)
+                    layer.neurons[n].activate_neuron(input_vector[n], None, None)
             else:        
                 temp = []
                 # Calculate the weighted sum for every neuron
                 for n in np.arange(layer.get_neuron_count()):
                     # pass the required vectors (x, w) to the activate_neuron() method
-                    layer.neurons[n].activate_neuron(previous_layer_input, layer.get_weights_for_neuron(n))
+                    layer.neurons[n].activate_neuron(previous_layer_input, layer.get_weights_for_neuron(n), layer.get_bias_value(n))
                     # accumulate the current activation values
                     temp.append(layer.neurons[n].get_activation())
 
