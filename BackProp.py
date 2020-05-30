@@ -213,9 +213,6 @@ class NeuralNetwork(object):
                 temp.clear() 
 
     def backward_pass(self, target_output_vector):
-        # l1 = self.layers[-1::-1]
-        # l2 = self.layers[-2::-1]
-        # l2.append(None)
         error_vector = None
         weight_matrix = None
         # Calculate Error terms for all layers (end to start):
@@ -241,7 +238,6 @@ class NeuralNetwork(object):
         pass
 
     # Train the network using back propagation algorithm
-    # Use tqdm here!!! NOT IN FORWARD OR BACKWARD PASS!!!
     def train_network(self):
         X_train, y_train, size = self.data
         for i in range(size):
