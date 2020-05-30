@@ -49,7 +49,7 @@
 <h2 style='font-family:georgia; font-size: 24px'>2.1. class Neuron:</h2>
 
 <img src='./images/Neuron.png'/>
-<p style='font-family: georgia; text-align:center; font-size:12px; font-weight:bold;'>Figure 1. The Neuron object</p>
+<p style='font-family: georgia; font-size:12px;'><center><b>Figure 1. The Neuron object</b></center></p>
 <p style='font-family:georgia;'>A Neuron is the basic unit of every Network layer. It is a simple unit which is connected to all the previous layer neurons and the next layer with appropriate edge weights. It has various attributes like Activation value (value after applying activation function to the weighted sum), Activation function (function to be applied to the weighted sum of inputs and corresponding weights), error term (value of error term 'delta'), and Neuron type (Input layer neuron or other). A neuron has following methods:</p>
 <ul style='font-family:georgia;'>
     <li><b>activate_neuron(input_vector, weights, bias_value)</b>: Depending on the type of neuron (input or hidden or output) it calculates weighted sum of 'input_vector' and 'weights' (Using np.dot()) and applies the activation function e.g. sigmoid() to the result. The final result is stored in Neuron's 'activation' attribute.</li>
@@ -59,7 +59,7 @@
 <h2 style='font-family:georgia; font-size: 24px'>2.2. class Layer:</h2>
 
 <img src='./images/Layer.png'/>
-<p style='font-family: georgia; text-align:center; font-size:12px; font-weight:bold;'>Figure 2. The Layer object</p>
+<p style='font-family: georgia; font-size:12px;'><center><b>Figure 2. The Layer object</b></center></p>
 <p style='font-family:georgia;'>A 'Layer' object is a collection of 'Neuron' objects, weight matrix between current layer and 'previous' layer, and various static layer attributes. Following are the 'Layer' attributes:</p>
 <ul style='font-family:georgia;'>
     <li><b>layer_type</b>: Type of layer. Input, Hidden or Output ('i', 'h', 'o' respectively).</li>
@@ -82,7 +82,7 @@
 <h2 style='font-family:georgia; font-size: 24px'>2.3. class NeuralNetwork:</h2>
 
 <img src='./images/NeuralNetwork.png'/>
-<p style='font-family: georgia; text-align:center; font-size:12px; font-weight:bold;'>Figure 3. The NeuralNetwork object</p>
+<p style='font-family: georgia; font-size:12px;'><center><b>Figure 3. The NeuralNetwork object</b></center></p>
 <p style='font-family:georgia;'>NeuralNetwork is the final structure consisting of the list of layers. All the training process takes place here. The network is costructed from the JSON file which is supplied while creating an instance of this class. The network in initilized by building a list of layers as per the provided configuration. Then setting the appropriate network properties. Also the the dataset is loaded during object construction from the appropriate path supplied in the JSON file. All you need to do is to call the train_network() method. The methods are described as follows:</p>
 
 <ul style='font-family:georgia;'>
@@ -94,13 +94,13 @@
 <h1 style='font-family:georgia; font-size:28px'>3. The Algorithm</h1>
 
 <img src="./images/algorithm.jpg"/>
-<p style='font-family: georgia; text-align:center; font-size:12px; font-weight:bold;'>Figure 4. The Stochastic version of BackPropagation algorithm</p>
-<p style='font-family: georgia; text-align:center; font-size:10px;'>The photograph taken from Machine Learning by Tom M. Mitchell by McGraw Hill Publications </p>
+<p style='font-family: georgia; font-size:12px;'><center><b>Figure 4. The Stochastic version of BackPropagation algorithm</b></center></p>
+<p style='font-family: georgia; font-size:10px;'><center>The photograph taken from Machine Learning by Tom M. Mitchell by McGraw Hill Publications.</center></p>
 
 <h2 style='font-family:georgia; font-size: 24px'>3.1. The weight matrix</h2>
 <p style='font-family: georgia;'> The weight matrix is one of the most fundamental structure in this algorithm. The notations are referred according to the original algorithm from Machine Learning by Tom Mitchell. 'W(j, i)' is the weight between neuron 'i' of previous layer and neuron 'j' of current layer and directed <b> from 'i' to 'j' </b>. Following illustration will clarify the situation. </p>
 <img src='./images/weightmatrix.png'/>
-<p style='font-family: georgia; text-align:center; font-size:12px; font-weight:bold;'>Figure 5. The structure of a weight matrix</p>
+<p style='font-family: georgia; font-size:12px;'><center><b>Figure 5. The structure of a weight matrix</b></center></p>
 <p style='font-family: georgia;'>Consider all the weight directions from previous layer to current layer.<br/>
 The <i>k</i>th 'row' of weight matrix represent the weight vector containing all the weights from the previous layer, connected to <i>k</i>th neuron in current layer (in Red).<br/>
 The <i>l</i>th 'column' of the weight matrix gives the vector of the weights from <i>l</i>th neuron from previous layer to all the neurons in current layer (in Blue).</p>
