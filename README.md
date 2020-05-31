@@ -129,5 +129,6 @@ The <i>l</i>th 'column' of the weight matrix gives the vector of the weights fro
 <ul style='font-family: georgia;'>
     <li> Configure your network in a JSON file (refer to one of the file format provided in 'Network_structures' directory). Add a path of dataset (absolute path is recommended but a path relative to the directory where 'Runner.py' is present is also acceptable). Keep the data files in 'data' directory, this can make things less messy. </li>
     <li> Open Python terminal and run <code>python Runner.py</code>
-    <li> There's an additional module to create a dataset 'dataset_creator.py'. It just creates a random data block of 1's and 0's with specified dimensions.
+    <li> There's an additional module to create a dataset 'dataset_creator.py'. It just creates a random data block of 1's and 0's with specified dimensions. Also, Iris dataset is added.
 </ul>
+<p style='font-family:georgia;'> For whatever discrepancies are there, please provide any advice to rectify. Thank you. </p>
