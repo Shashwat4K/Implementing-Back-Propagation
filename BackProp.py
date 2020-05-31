@@ -17,9 +17,7 @@ class Neuron(object):
         self.activation = 0.0
         self.is_input = is_input
         self.error_term = 0.0 # Delta for each neuron
-        # self.links = "" # weights connecting 'this' neuron from all previous neurons, Empty for input neurons
-        # if is_input == False:
-        #     self.links = links    
+           
         if activation_type == 'sigmoid':
             self.activation_fn = sigmoid
 
@@ -257,5 +255,5 @@ class NeuralNetwork(object):
         testX, testY = self.test[:, :self.network_properties['input_size']], self.test[:, self.network_properties['input_size']:] 
         for i in range(len(self.test)):
             prediction_vector = self.forward_pass(testX[i], return_value=True) 
-            print(prediction_vector)
+            # print(prediction_vector)
             print("Prediction: {} Actual: {}".format(np.argmax(prediction_vector), np.argmax(testY[i])))    

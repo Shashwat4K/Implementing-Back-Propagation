@@ -13,8 +13,5 @@ print("Some sample testing JSON files are given, refer those to make your own cu
 
 network = NeuralNetwork(os.path.join(NETWORK_DIRECTORY, 'network_1.json'))
 
-# Generate random data
-# data = np.random.choice([0, 1], size=(10, 12), p=[0.5, 0.5])
-# train_X, train_y = data[:, :10], data[:, 10:]
-
 network.train_network()
+# network.predict_answer()
