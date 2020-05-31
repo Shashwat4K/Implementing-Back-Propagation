@@ -11,7 +11,7 @@ print("Welcome to BackProp simulation")
 print("The network will be loaded from a JSON file, which you can provide")
 print("Some sample testing JSON files are given, refer those to make your own custom network")
 
-network = NeuralNetwork(os.path.join(NETWORK_DIRECTORY, 'network_1.json'))
+network = NeuralNetwork(os.path.join(NETWORK_DIRECTORY, 'network_2.json'))
 
 network.train_network()
 # network.predict_answer()

@@ -17,7 +17,7 @@ class Neuron(object):
         self.activation = 0.0
         self.is_input = is_input
         self.error_term = 0.0 # Delta for each neuron
-           
+
         if activation_type == 'sigmoid':
             self.activation_fn = sigmoid
 
@@ -160,6 +160,8 @@ class NeuralNetwork(object):
         # Get network settings, from network config file
         with open(network_file_path, "r") as net:
             self.network_properties = json.load(net)
+
+        print("Loaded network file: {}".format(self.network_properties["network_name"]))    
         self.layers = [] # Array of layers
         prev_layer_units = None
         for i in range(self.network_properties['n_layers']+1):
@@ -174,12 +176,13 @@ class NeuralNetwork(object):
         trainX = self.train[:, :self.network_properties['input_size']] 
         trainY = self.train[:, self.network_properties['input_size']:] 
         size = len(self.train)
-        self.data = (trainX, trainY, size) 
+        self.training_data = (trainX, trainY, size) 
+        print("Initially layers are:")
         self.print_layers()
         
-    def print_data(self):
+    def print_training_data(self):
         print("data: ")
-        print(self.data)
+        print(self.training_data)
 
     def print_layers(self):
         print('printing all the layers:')
@@ -241,14 +244,17 @@ class NeuralNetwork(object):
 
     # Train the network using back propagation algorithm
     def train_network(self):
-        X_train, y_train, size = self.data
-        for i in tqdm(range(size)):
-            # print('Training example {}'.format(i+1))
-            # print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))
-            self.forward_pass(X_train[i])
-            self.backward_pass(y_train[i])
-            # print("iteration completed. Result:")
-            # self.print_layers()
+        X_train, y_train, size = self.training_data
+
+        for epoch in range(self.network_properties["epochs"]):
+            print("Epoch {}".format(epoch+1))
+            for i in tqdm(range(size)):
+                # print('Training example {}'.format(i+1))
+                # print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))
+                self.forward_pass(X_train[i])
+                self.backward_pass(y_train[i])
+                # print("iteration completed. Result:")
+                # self.print_layers()
 
 
     def predict_answer(self):
