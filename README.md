@@ -131,4 +131,5 @@ The <i>l</i>th 'column' of the weight matrix gives the vector of the weights fro
     <li> Open Python terminal and run <code>python Runner.py</code>
     <li> There's an additional module to create a dataset 'dataset_creator.py'. It just creates a random data block of 1's and 0's with specified dimensions. Also, Iris dataset is added.
 </ul>
-<p style='font-family:georgia;'> For whatever discrepancies are there, please provide any advice to rectify. Thank you. </p>
+<p style='font-family:georgia;'> For whatever discrepancies are there, kindly provide any advice to rectify. Thank you. </p>
+<hr/>
