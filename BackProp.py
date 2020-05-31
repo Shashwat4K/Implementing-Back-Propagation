@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from activation_functions import sigmoid
+from sklearn.model_selection import train_test_split
 
 class Neuron(object):
     '''
@@ -171,9 +172,10 @@ class NeuralNetwork(object):
         df = pd.read_csv(self.network_properties['dataset_path'])
         data = np.array(df)
         data_block = data[:, 1:]
-        trainX = data_block[:, :self.network_properties['input_size']] 
-        trainY = data_block[:, self.network_properties['input_size']:] 
-        size = len(data_block)
+        self.train, self.test = train_test_split(data_block, train_size=0.8, random_state=42)
+        trainX = self.train[:, :self.network_properties['input_size']] 
+        trainY = self.train[:, self.network_properties['input_size']:] 
+        size = len(self.train)
         self.data = (trainX, trainY, size) 
         self.print_layers()
         
@@ -187,7 +189,7 @@ class NeuralNetwork(object):
             self.layers[i].print_layer_neurons()
             print('#################')
 
-    def forward_pass(self, input_vector):
+    def forward_pass(self, input_vector, return_value=False):
 
         # print("Forward pass: input='{}'".format(input_vector))
         # Input vector should be of same length as the number of neurons in input layer.
@@ -211,6 +213,8 @@ class NeuralNetwork(object):
                 # Update the previous layer input, which will be fed to the next layer
                 previous_layer_input = np.array(temp) 
                 temp.clear() 
+        if return_value == True:
+            return previous_layer_input        
 
     def backward_pass(self, target_output_vector):
         error_vector = None
@@ -240,10 +244,18 @@ class NeuralNetwork(object):
     # Train the network using back propagation algorithm
     def train_network(self):
         X_train, y_train, size = self.data
-        for i in range(size):
-            print('Training example {}'.format(i+1))
-            print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))
+        for i in tqdm(range(size)):
+            # print('Training example {}'.format(i+1))
+            # print('train_X: {}\ntrain_y: {}'.format(X_train[i], y_train[i]))
             self.forward_pass(X_train[i])
             self.backward_pass(y_train[i])
             # print("iteration completed. Result:")
             # self.print_layers()
+
+
+    def predict_answer(self):
+        testX, testY = self.test[:, :self.network_properties['input_size']], self.test[:, self.network_properties['input_size']:] 
+        for i in range(len(self.test)):
+            prediction_vector = self.forward_pass(testX[i], return_value=True) 
+            print(prediction_vector)
+            print("Prediction: {} Actual: {}".format(np.argmax(prediction_vector), np.argmax(testY[i])))    
